@@ -1,0 +1,24 @@
+- name: create vault directory
+  file:
+    path: /data/vault
+    state: directory
+
+- name: copy vault configuration
+  copy:
+    src: vault.hcl
+    dest: /data/vault/vault.hcl
+
+- name: start vault server
+  docker_container:
+    name: vault
+    image: "vault:{{ vault_version }}"
+    recreate: yes
+    state: started
+    restart_policy: "always"
+    networks:
+    - name: vault_network
+    volumes:
+    - "/data/vault:/vault/config"
+    env:
+      SKIP_SETCAP: "true"
+    command: server

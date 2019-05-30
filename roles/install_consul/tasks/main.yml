@@ -1,0 +1,31 @@
+- name: create vault network
+  docker_network:
+    name: vault_network
+
+- name: start consul server
+  docker_container:
+    name: consul
+    image: "consul:{{ consul_version }}"
+    recreate: yes
+    state: started
+    restart_policy: "always"
+    networks:
+      - name: vault_network
+    volumes:
+      - "/data/consul/data:/consul/data"
+      - "/data/consul/backup:/backup"
+    env:
+      CONSUL_BIND_INTERFACE: "eth0"
+    command: agent -server -client=0.0.0.0 -bootstrap-expect=1
+
+- name: Copy backup job
+  copy:
+    src: backup.sh
+    dest: /data/consul/backup/backup.sh
+
+- name: Create backup job
+  cron:
+    name: backup
+    minute: "0"
+    hour: "0"
+    job: "/bin/bash /data/consul/backup/backup.sh > /tmp/backup.sh 2>&1"

@@ -1,0 +1,8 @@
+- hosts: vault
+  become: true
+
+  roles:
+    - install_docker
+    - install_consul
+    - install_vault
+    - install_proxy

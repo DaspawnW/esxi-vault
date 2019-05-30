@@ -1,0 +1,29 @@
+- name: create proxy directory
+  file:
+    path: /data/proxy
+    state: directory
+
+- name: copy ssl cert and key
+  copy:
+    src: "{{ item.src }}"
+    dest: "/data/proxy/{{ item.dest }}"
+  with_items:
+    - { src: "{{ ssl_cert_src }}", dest: "tls.crt" }
+    - { src: "{{ ssl_key_src }}", dest: "tls.key" }
+
+- name: start proxy server
+  docker_container:
+    name: proxy
+    image: "daspawnw/vault-crd-proxy:{{ proxy_version }}"
+    recreate: yes
+    state: started
+    restart_policy: "always"
+    networks:
+      - name: vault_network
+    volumes:
+      - "/data/proxy:/etc/ssl/private"
+    ports:
+      - "443:8443"
+    env:
+      TARGET_HOST: "vault"
+      TARGET_PORT: "8200"
