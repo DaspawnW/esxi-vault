@@ -15,7 +15,6 @@
   docker_container:
     name: proxy
     image: "daspawnw/vault-crd-proxy:{{ proxy_version }}"
-    recreate: yes
     state: started
     restart_policy: "always"
     networks:

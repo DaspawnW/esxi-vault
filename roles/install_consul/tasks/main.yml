@@ -6,7 +6,6 @@
   docker_container:
     name: consul
     image: "consul:{{ consul_version }}"
-    recreate: yes
     state: started
     restart_policy: "always"
     networks:
